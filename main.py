@@ -20,8 +20,23 @@ if __name__ == '__main__':
 
     ret3, th3 = cv2.threshold(blur, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
+    _, contours, hierarchy = cv2.findContours(th3, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    img_contours = cv2.drawContours(th3, contours, -1, (255, 0, 0))
+    cv2.imshow('contours', img_contours)
+    cv2.waitKey(0)
+
+    size_list = np.array([cv2.contourArea(x) for x in contours])
+
+    mean_size = size_list.mean()
+
+    print(mean_size)
+    contours_small = [x for x in contours if cv2.contourArea(x) <= 2000]
+
+    img_contours2 = cv2.drawContours(th3, contours_small, -1, (255, 0, 0))
+
     cv2.imshow('th3', th3)
     cv2.waitKey(0)
 
-    cv2.imshow('OTSU', cv2.bitwise_and(th3, img2_gray))
+    cv2.imshow('contours_2', img_contours2)
     cv2.waitKey(0)
