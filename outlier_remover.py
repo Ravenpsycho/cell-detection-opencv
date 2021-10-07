@@ -11,16 +11,30 @@ from tkinter.filedialog import askdirectory
 
 
 class OutlierRemover:
-    def __init__(self, pattern_dapi, pattern_other, factor=10, score=True, verbose=False):
-        self.pat_dapi = pattern_dapi
-        self.pat_other = pattern_other
+    def __init__(self, factor=10, score=True, verbose=False):
         self.factor = factor
         self.score = score
         self.verbose = verbose
 
+        self.dir = '.'
+        self.pat_dapi = None
+        self.pat_other = None
         self.list_dapi = []
         self.list_other = []
         self.score_df = pd.DataFrame(columns=['file', 'dapi_score', f'{self.pat_other}_score'])
+
+    def set_labels(self, dapi_label, other_label):
+        self.pat_dapi = dapi_label
+        self.pat_other = other_label
+
+    def set_dir(self):
+        self.dir = askdirectory(title='Select a Folder', initialdir='.')
+
+    def get_dir(self):
+        return self.dir
+
+    def get_lists(self):
+        return [self.list_dapi, self.list_other]
 
     def remove_outliers(self, dapi_url, other_channel_url):
         # split path and set dir
@@ -126,8 +140,7 @@ class OutlierRemover:
             }, ignore_index=True)
 
     def find_matches(self):
-        path = askdirectory(title='Select a Folder', initialdir='.')
-        only_files = [f for f in listdir(path) if isfile(join(path, f))]
+        only_files = [f for f in listdir(self.dir) if isfile(join(self.dir, f))]
         dapi_matches = [re.match(r".*" + self.pat_dapi + r".*\..*", x) for x in only_files]
         other_matches = [re.match(r".*" + self.pat_other + r".*\..*", x) for x in only_files]
         dapi_files = [x.group(0) for x in dapi_matches if x is not None]
@@ -144,17 +157,20 @@ class OutlierRemover:
                 raise MisMatchError(f'The lists (dapi, {self.pat_other}) are the same' +
                                     'length but the rest of their names do not match')
 
-        self.list_dapi += [path + "/" + f for f in dapi_files]
-        self.list_other += [path + "/" + f for f in other_files]
+        self.list_dapi += [self.dir + "/" + f for f in dapi_files]
+        self.list_other += [self.dir + "/" + f for f in other_files]
 
+    def run(self):
         for i in range(len(self.list_dapi)):
             print(f'processing image {i} of {len(self.list_dapi)}')
             self.remove_outliers(self.list_dapi[i], self.list_other[i])
 
         if self.score:
-            self.score_df.to_csv(path + "/outliers_removed/scoring.csv")
+            self.score_df.to_csv(self.dir + "/outliers_removed/scoring.csv")
 
 
 if __name__ == '__main__':
-    outlier_finder = OutlierRemover('d1', 'd0')
+    outlier_finder = OutlierRemover()
+    outlier_finder.set_labels('d1', 'd0')
     outlier_finder.find_matches()
+    outlier_finder.run()
