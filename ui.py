@@ -5,16 +5,38 @@ from outlier_remover import OutlierRemover
 def dir_btn_click():
     out_remover.set_dir()
     label_dir.config(text="Chosen dir:\n" + out_remover.get_dir())
+    label_dir.config(fg='green')
     return None
 
 
 def expr_btn_click():
-    val_dapi = text_input_expr1.get('1.0', tk.END)
-    val_other = text_input_expr2.get('1.0', tk.END)
+    # getting the values minus the last character ('\n')
+    val_dapi = text_input_expr1.get('1.0', 'end-1c')
+    val_other = text_input_expr2.get('1.0', 'end-1c')
+
+    # setting them in the OutlierRemover object
     out_remover.set_labels(val_dapi,
                            val_other)
-    print(val_dapi, val_other)
+    # filling the lists
+    out_remover.find_matches()
+    lists = out_remover.get_lists(True)
+    dapi_pretty_print = '\n'.join(['DAPI Files:'] + lists[0])
+    other_pretty_print = '\n'.join([f'{out_remover.get_expr()[1]} Files:'] + lists[1])
+    label_list1.config(text=dapi_pretty_print)
+    label_list2.config(text=other_pretty_print)
+
+    text_input_expr1.config(fg='green')
+    text_input_expr2.config(fg='green')
+
+    btn_run = tk.Button(frame_list_display, width=12, height=2, text='RUN',
+                        command=btn_run_click)
+    btn_run.pack(side=tk.LEFT)
+
     return None
+
+
+def btn_run_click():
+    pass
 
 
 out_remover = OutlierRemover()
@@ -48,13 +70,13 @@ btn_expr = tk.Button(frame_expression_selector, height=2, width=12,
                      text='Validate Features', command=expr_btn_click)
 btn_expr.pack(side=tk.RIGHT)
 # display list
-label_list1 = tk.Label(frame_list_display, height=20, width=36, text='',
+label_list1 = tk.Label(frame_list_display, width=30, text='',
                        bd=1, relief=tk.SOLID)
 label_list1.pack(side=tk.LEFT, expand=True)
 
-label_list2 = tk.Label(frame_list_display, height=20, width=36, text='',
+label_list2 = tk.Label(frame_list_display, width=30, text='',
                        bd=1, relief=tk.SOLID)
-label_list2.pack(side=tk.RIGHT, expand=True)
+label_list2.pack(side=tk.LEFT, expand=True)
 
 
 if __name__ == '__main__':

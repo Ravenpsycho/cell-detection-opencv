@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import re
 
-from errorHandling.Errors import DirNotMatchingError, ListLengthError, MisMatchError
+from errorHandling.Errors import DirNotMatchingError, ListLengthError, MisMatchError, MissingValueError
 from os import listdir
 from os.path import isfile, join, split
 from pathlib import Path
@@ -33,8 +33,15 @@ class OutlierRemover:
     def get_dir(self):
         return self.dir
 
-    def get_lists(self):
+    def get_lists(self, short=False):
+        if short:
+            list_dapi = [split(x)[1] for x in self.list_dapi]
+            list_other = [split(x)[1] for x in self.list_other]
+            return [list_dapi, list_other]
         return [self.list_dapi, self.list_other]
+
+    def get_expr(self):
+        return [self.pat_dapi, self.pat_other]
 
     def remove_outliers(self, dapi_url, other_channel_url):
         # split path and set dir
@@ -140,6 +147,14 @@ class OutlierRemover:
             }, ignore_index=True)
 
     def find_matches(self):
+        if self.pat_dapi == '' or self.pat_other == '':
+            raise MissingValueError('One of the pattern values is missing')
+
+        if self.pat_dapi == self.pat_other:
+            raise ValueError('The values for dapi and other cannot be identical')
+
+        self.list_dapi = []
+        self.list_other = []
         only_files = [f for f in listdir(self.dir) if isfile(join(self.dir, f))]
         dapi_matches = [re.match(r".*" + self.pat_dapi + r".*\..*", x) for x in only_files]
         other_matches = [re.match(r".*" + self.pat_other + r".*\..*", x) for x in only_files]
@@ -151,6 +166,9 @@ class OutlierRemover:
 
         if len(test_dapi) != len(test_other):
             raise ListLengthError(f' The Dapi list is not the same length as the {self.pat_other} list')
+
+        if dapi_files == other_files:
+            raise ValueError('Chosen expressions return the same list!')
 
         for i in range(len(test_dapi)):
             if test_dapi[i] != test_other[i]:
@@ -166,7 +184,7 @@ class OutlierRemover:
             self.remove_outliers(self.list_dapi[i], self.list_other[i])
 
         if self.score:
-            self.score_df.to_csv(self.dir + "/outliers_removed/scoring.csv")
+            self.score_df.to_csv("{0}/outliers_removed/scoring.csv".format(self.dir))
 
 
 if __name__ == '__main__':

@@ -11,3 +11,8 @@ class ListLengthError(Exception):
 class MisMatchError(Exception):
     """Raised if the length of two lists are different"""
     pass
+
+
+class MissingValueError(Exception):
+    """One or several values are missing"""
+    pass
