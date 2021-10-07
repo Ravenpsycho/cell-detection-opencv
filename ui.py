@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from outlier_remover import OutlierRemover
 
 
@@ -15,22 +16,23 @@ def expr_btn_click():
     val_other = text_input_expr2.get('1.0', 'end-1c')
 
     # setting them in the OutlierRemover object
-    out_remover.set_labels(val_dapi,
-                           val_other)
-    # filling the lists
-    out_remover.find_matches()
-    lists = out_remover.get_lists(True)
-    dapi_pretty_print = '\n'.join(['DAPI Files:'] + lists[0])
-    other_pretty_print = '\n'.join([f'{out_remover.get_expr()[1]} Files:'] + lists[1])
-    label_list1.config(text=dapi_pretty_print)
-    label_list2.config(text=other_pretty_print)
+    try:
+        out_remover.set_labels(val_dapi,
+                               val_other)
+        # filling the lists
+        out_remover.find_matches()
+        lists = out_remover.get_lists(True)
+        dapi_pretty_print = '\n'.join(['DAPI Files:'] + lists[0])
+        other_pretty_print = '\n'.join([f'{out_remover.get_expr()[1]} Files:'] + lists[1])
+        label_list1.config(text=dapi_pretty_print)
+        label_list2.config(text=other_pretty_print)
 
-    text_input_expr1.config(fg='green')
-    text_input_expr2.config(fg='green')
+        text_input_expr1.config(fg='green')
+        text_input_expr2.config(fg='green')
+        btn_run.config(state=tk.NORMAL, text='RUN')
 
-    btn_run = tk.Button(frame_list_display, width=12, height=2, text='RUN',
-                        command=btn_run_click)
-    btn_run.pack(side=tk.LEFT)
+    except Exception as e:
+        messagebox.showerror("error", str(e))
 
     return None
 
@@ -78,6 +80,9 @@ label_list2 = tk.Label(frame_list_display, width=30, text='',
                        bd=1, relief=tk.SOLID)
 label_list2.pack(side=tk.LEFT, expand=True)
 
+btn_run = tk.Button(frame_list_display, width=12, height=2, text='Not Ready',
+                    command=btn_run_click, state=tk.DISABLED)
+btn_run.pack(side=tk.LEFT)
 
 if __name__ == '__main__':
     root.mainloop()
