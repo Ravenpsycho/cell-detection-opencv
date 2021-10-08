@@ -97,5 +97,4 @@ btn_run = tk.Button(frame_list_display, width=11, height=2, text='RUN',
                     command=btn_run_click, state=tk.DISABLED, bg='darkgrey')
 btn_run.pack(side=tk.RIGHT, expand=True)
 
-if __name__ == '__main__':
-    root.mainloop()
+root.mainloop()
