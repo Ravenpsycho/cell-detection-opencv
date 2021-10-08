@@ -16,7 +16,7 @@ class OutlierRemover:
         self.score = score
         self.verbose = verbose
 
-        self.dir = '.'
+        self.dir = None
         self.pat_dapi = None
         self.pat_other = None
         self.list_dapi = []
@@ -40,7 +40,7 @@ class OutlierRemover:
             return [list_dapi, list_other]
         return [self.list_dapi, self.list_other]
 
-    def get_expr(self):
+    def get_labels(self):
         return [self.pat_dapi, self.pat_other]
 
     def remove_outliers(self, dapi_url, other_channel_url):
