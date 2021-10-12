@@ -3,7 +3,6 @@ from errorHandling.Errors import MissingValueError
 from tkinter import messagebox
 from outlier_remover import OutlierRemover
 
-
 def dir_btn_click():
     try:
         out_remover.set_dir()
